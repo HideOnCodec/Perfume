@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,20 +16,19 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomViewHolder> {
+public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomViewHolder>implements Filterable {
 
-    private ArrayList<perfume> arrayList;
-    private Context context;
-
+    ArrayList<perfume> filteredList; // 정렬된 향수 리스트
+    ArrayList<perfume> unFilteredList; // 정렬이 안된 향수 리스트
+    Context context;
 
     public CustomAdapter(ArrayList<perfume> arrayList, Context context) {
-        this.arrayList = arrayList;
-        this.context = context;
+        this.unFilteredList = arrayList;
+        this.filteredList=arrayList;
+        this.context=context;
     }
-
-    @NonNull
     @Override
-    public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
         CustomViewHolder holder = new CustomViewHolder(view);
         return holder;
@@ -37,23 +38,23 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
         // arraylist에 firebase 데이터(향수 이미지)를 가져와서 adapter에 전송
         Glide.with(holder.itemView)
-                .load(arrayList.get(position).getProfile())
+                .load(filteredList.get(position).getProfile())
                 .into(holder.pf_profile);
-        holder.pf_name.setText(arrayList.get(position).getName());
-        holder.pf_rating.setText(String.valueOf(arrayList.get(position).getRating()));
-        holder.pf_brand.setText(arrayList.get(position).getBrand());
+        holder.pf_name.setText(filteredList.get(position).getName());
+        holder.pf_estimating.setText("별점 "+String.valueOf(filteredList.get(position).getEstimating()));
+        holder.pf_brand.setText(filteredList.get(position).getBrand());
     }
 
     @Override
     public int getItemCount() {
         // 삼항 연산자
-        return (arrayList != null ? arrayList.size() : 0);
+        return (filteredList != null ? filteredList.size() : 0);
     }
 
     public class CustomViewHolder extends RecyclerView.ViewHolder {
         ImageView pf_profile;
         TextView pf_brand;
-        TextView pf_rating;
+        TextView pf_estimating;
         TextView pf_name;
 
         public CustomViewHolder(@NonNull View itemView) {
@@ -62,7 +63,42 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
             this.pf_profile = itemView.findViewById(R.id.pf_profile);
             this.pf_name = itemView.findViewById(R.id.pf_name);
             this.pf_brand = itemView.findViewById(R.id.pf_brand);
-            this.pf_rating = itemView.findViewById(R.id.pf_rating);
+            this.pf_estimating = itemView.findViewById(R.id.pf_estimating);
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String charString = constraint.toString();
+                if(charString.isEmpty()) {
+                    filteredList = unFilteredList; //처음에는 정렬이 안되있는 상태
+                } else {
+                    ArrayList<perfume> filteringList = new ArrayList<>();
+                    for(perfume item : unFilteredList) {
+                        if(item.getName().toLowerCase().contains(charString.toLowerCase())) {
+                            filteringList.add(item);
+                        }
+                    }
+                    filteredList = filteringList; //이름순으로 정렬한 리스트를 넣음
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = filteredList;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                filteredList = (ArrayList<perfume>)results.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
+
+
+
 }
+
+

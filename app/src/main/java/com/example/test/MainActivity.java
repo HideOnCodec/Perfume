@@ -8,7 +8,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TabHost;
+import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,15 +24,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private CustomAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private ArrayList<perfume> arrayList;
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
+    private SearchView searchView;
+    private Spinner spinner;
+
+
+    private ArrayList<perfume> arrayList = new ArrayList<>();
+    private ArrayList<perfume> copy_List = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +61,29 @@ public class MainActivity extends AppCompatActivity {
         tabHost.addTab(spec);
 
         //향수 리스트 출력 구현(리사이클러뷰)
-        recyclerView = findViewById(R.id.recyclerView); // id 연결
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView); // id 연결
         recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존 성능 강화
+        searchView = (SearchView)findViewById(R.id.search_view) ;
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
+        //layoutManager 설정
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        arrayList = new ArrayList<>(); // perfumeInfo 객체를 담을 ArrayList(->어댑터)
 
+        //파이어베이스 데이터베이스 연결
         database = FirebaseDatabase.getInstance(); //firebase DB와 연동
 
         databaseReference = database.getReference("perfume"); // Firebase 의 DB 테이블과 연결
@@ -65,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     perfume info = snapshot.getValue(perfume.class); // 만들어둔 perfume 객체에 데이터를 담는다.
                     arrayList.add(info); // 담은 데이터를 배열리스트에 넣고, 리사이클러뷰로 보낼 준비
+                    copy_List.add(info);
                 }
                 adapter.notifyDataSetChanged(); //리스트 저장 및 새로고침
             }
@@ -76,8 +108,44 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        adapter = new CustomAdapter(arrayList, this);
-        recyclerView.setAdapter(adapter); // 리사이클러뷰에 어댑터 연결
+
+        //드롭다운 버튼 구현
+        spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String text = spinner.getSelectedItem().toString();
+                if (text.equals("별점순")) {
+                    Collections.sort(copy_List, new Descending());
+                    adapter = new CustomAdapter(copy_List, getApplicationContext());
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+                    recyclerView.setAdapter(adapter);
+
+                }
+                else if(text.equals("이름순")){
+                    adapter = new CustomAdapter(arrayList, getApplicationContext());
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+                    recyclerView.setAdapter(adapter);
+
+                }
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+        });
 
     }
+
+    class Descending implements Comparator<perfume> {
+        @Override
+        public int compare(perfume p, perfume q) {
+            String a=String.valueOf(p.getEstimating());
+            String b=String.valueOf(q.getEstimating());
+            return b.compareTo(a);
+        }
+
+    }
+
 }

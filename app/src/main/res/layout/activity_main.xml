@@ -9,12 +9,10 @@
     <TabHost
         android:id="@+id/host"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="-226dp"
-        tools:layout_editor_absoluteY="-16dp">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="439dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
@@ -33,12 +31,32 @@
                     android:id="@+id/tab1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="3dp"
+                        android:orientation="horizontal">
+                        <SearchView
+                            android:id="@+id/search_view"
+                            android:layout_width="290dp"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/binder"/>
+                        <Spinner
+                            android:layout_marginTop="3dp"
+                            android:id="@+id/spinner"
+                            android:layout_width="110dp"
+                            android:layout_height="40dp"
+                            android:entries="@array/sort"/>
 
+
+                    </LinearLayout>
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
+
+
 
                 </LinearLayout>
 

@@ -1,9 +1,11 @@
 package com.example.test;
 
-public class perfume {
+import java.util.Comparator;
+
+public class perfume  {
     private String name;
     private String brand;
-    private int rating;
+    private float estimating;
     private String profile;
 
     public String getName() {
@@ -22,12 +24,12 @@ public class perfume {
         this.brand = brand;
     }
 
-    public int getRating() {
-        return rating;
+    public float getEstimating() {
+        return estimating;
     }
 
     public void setRating(int rating) {
-        this.rating = rating;
+        this.estimating = rating;
     }
 
     public String getProfile() {
@@ -37,4 +39,5 @@ public class perfume {
     public void setProfile(String profile) {
         this.profile = profile;
     }
+
 }
