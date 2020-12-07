@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Post {
+    private String userId;
     public float review_stars;
     public String review_text;
 
@@ -13,13 +14,15 @@ public class Post {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public Post(float review_stars, String review_text) {
+    public Post(String userId,float review_stars, String review_text) {
+        this.userId=userId;
         this.review_stars = review_stars;
         this.review_text = review_text;
     }
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
+        result.put("userId",userId);
         result.put("review_stars", review_stars);
         result.put("review_text", review_text);
 

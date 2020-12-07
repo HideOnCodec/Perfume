@@ -6,6 +6,9 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +19,7 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,13 +41,17 @@ public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Spinner spinner;
 
-
     private ArrayList<perfume> arrayList = new ArrayList<>();
     private ArrayList<perfume> copy_List = new ArrayList<>();
+    //현재 선택된 향수 저장
+    public static Context context_main;
+    public String current;
+    public String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context_main = this;
 
         //액티비티 6,7
         setContentView(R.layout.activity_main);
@@ -86,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         //파이어베이스 데이터베이스 연결
         database = FirebaseDatabase.getInstance(); //firebase DB와 연동
 
-        databaseReference = database.getReference("perfume"); // Firebase 의 DB 테이블과 연결
+        databaseReference = database.getReference("향수"); // Firebase 의 DB 테이블과 연결
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -97,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                     perfume info = snapshot.getValue(perfume.class); // 만들어둔 perfume 객체에 데이터를 담는다.
                     arrayList.add(info); // 담은 데이터를 배열리스트에 넣고, 리사이클러뷰로 보낼 준비
                     copy_List.add(info);
+
                 }
                 adapter.notifyDataSetChanged(); //리스트 저장 및 새로고침
             }
@@ -115,20 +124,45 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String text = spinner.getSelectedItem().toString();
-                if (text.equals("별점순")) {
+                if (text.equals("별점순")) //별점순 출력
+                {
                     Collections.sort(copy_List, new Descending());
                     adapter = new CustomAdapter(copy_List, getApplicationContext());
+                    //현재 선택된 향수 저장
+                    adapter.setOnItemClickListener(new CustomAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View v, int pos) {
+                            current = copy_List.get(pos).getName();
+                            findPath();
+                            Intent intent = new Intent(getApplicationContext(),testActivity.class);
+                            startActivity(intent);
+                        }
+
+                    });
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                     recyclerView.setAdapter(adapter);
 
                 }
-                else if(text.equals("이름순")){
+                else if(text.equals("이름순"))//이름순 출력
+                {
                     adapter = new CustomAdapter(arrayList, getApplicationContext());
+                    //현재 선택된 향수 저장
+                    adapter.setOnItemClickListener(new CustomAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View v, int pos) {
+                            current = arrayList.get(pos).getName();
+                            findPath();
+                            Intent intent = new Intent(getApplicationContext(),testActivity.class);
+                            startActivity(intent);
+                        }
+
+                    });
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                     recyclerView.setAdapter(adapter);
 
                 }
             }
+
 
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -138,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     class Descending implements Comparator<perfume> {
         @Override
         public int compare(perfume p, perfume q) {
@@ -146,6 +181,28 @@ public class MainActivity extends AppCompatActivity {
             return b.compareTo(a);
         }
 
+    }
+
+    public void findPath(){
+        database = FirebaseDatabase.getInstance(); //firebase DB와 연동
+        databaseReference = database.getReference("향수"); // Firebase 의 DB 테이블과 연결
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //반복문으로 데이터의 list 추출
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    perfume info = snapshot.getValue(perfume.class); // 만들어둔 perfume 객체에 데이터를 담는다.
+                    if(info.getName().equals(current))
+                        path = snapshot.getKey();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                //에러가 발생할 경우
+                Log.e("MainActivity", String.valueOf(databaseError.toException()));
+            }
+        });
     }
 
 }

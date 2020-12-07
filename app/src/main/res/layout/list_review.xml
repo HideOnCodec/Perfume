@@ -14,10 +14,10 @@
         android:padding="20dp">
 
         <ImageView
-            android:id="@+id/pf_photo"
+            android:id="@+id/pf_user"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_launcher_foreground" />
+            android:src="@mipmap/ic_user" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -26,24 +26,23 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/pf_name"
-                android:layout_width="wrap_content"
+                android:id="@+id/pf_userId"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="향수 이름" />
+                android:text="사용자" />
 
             <TextView
-                android:id="@+id/pf_brand"
+                android:id="@+id/pf_review"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="브랜드" />
+                android:text="한 줄 평" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/pf_estimating"
+            android:id="@+id/pf_stars"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
             android:text="별점" />
 
     </LinearLayout>

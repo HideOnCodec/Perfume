@@ -1,6 +1,7 @@
 package com.example.test;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,15 +19,26 @@ import java.util.ArrayList;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomViewHolder>implements Filterable {
 
-    ArrayList<perfume> filteredList; // 정렬된 향수 리스트
-    ArrayList<perfume> unFilteredList; // 정렬이 안된 향수 리스트
-    Context context;
+    public interface OnItemClickListener{
+        void onItemClick(View v, int pos);
+    }
+
+   private ArrayList<perfume> filteredList; // 정렬된 향수 리스트
+   private ArrayList<perfume> unFilteredList; // 정렬이 안된 향수 리스트
+   private Context context;
 
     public CustomAdapter(ArrayList<perfume> arrayList, Context context) {
         this.unFilteredList = arrayList;
         this.filteredList=arrayList;
         this.context=context;
     }
+
+    private OnItemClickListener mListener = null;
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.mListener = listener;
+    }
+
+
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
@@ -37,9 +49,12 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
         // arraylist에 firebase 데이터(향수 이미지)를 가져와서 adapter에 전송
+        /*
         Glide.with(holder.itemView)
-                .load(filteredList.get(position).getProfile())
+                .load(filteredList.get(position).getPhoto())
                 .into(holder.pf_profile);
+
+         */
         holder.pf_name.setText(filteredList.get(position).getName());
         holder.pf_estimating.setText("별점 "+String.valueOf(filteredList.get(position).getEstimating()));
         holder.pf_brand.setText(filteredList.get(position).getBrand());
@@ -52,7 +67,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
     }
 
     public class CustomViewHolder extends RecyclerView.ViewHolder {
-        ImageView pf_profile;
+       // ImageView pf_profile;
         TextView pf_brand;
         TextView pf_estimating;
         TextView pf_name;
@@ -60,11 +75,27 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView); // itemView 상속
             //상속 받은 itemView 를 통해 객체를 얻음
-            this.pf_profile = itemView.findViewById(R.id.pf_profile);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition();
+                    if(pos!=RecyclerView.NO_POSITION){
+                        if(mListener!=null){
+                            mListener.onItemClick(v,pos);
+                        }
+                    }
+
+                }
+            });
+
+            //this.pf_profile = itemView.findViewById(R.id.pf_photo);
             this.pf_name = itemView.findViewById(R.id.pf_name);
             this.pf_brand = itemView.findViewById(R.id.pf_brand);
             this.pf_estimating = itemView.findViewById(R.id.pf_estimating);
+
         }
+
     }
 
     @Override
