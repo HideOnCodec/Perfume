@@ -11,16 +11,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CustomAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private FirebaseDatabase database;
+    private FirebaseDatabase database=FirebaseDatabase.getInstance();
+    private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private SearchView searchView;
     private Spinner spinner;
@@ -47,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
     public static Context context_main;
     public String current;
     public String path;
+
+    //home
+    private Button buttonPerfume;
+    private FirebaseAuth firebaseAuth;
+    private DatabaseReference databaseReference2;
+    public String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +75,34 @@ public class MainActivity extends AppCompatActivity {
         spec.setIndicator(null, ResourcesCompat.getDrawable(getResources(), R.drawable.tab_icon1, null));
         spec.setContent(R.id.tab1);
         tabHost.addTab(spec);
+
+        buttonPerfume = (Button) findViewById(R.id.tab_content1);
+        buttonPerfume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // activity_sign 연결
+                Intent intent = new Intent(MainActivity.this, asking.class);
+                startActivity(intent);
+            }
+        });
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        buttonPerfume = (Button) findViewById(R.id.tab_content1);
+        buttonPerfume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // activity_sign 연결
+                Intent intent = new Intent(MainActivity.this, asking.class);
+                startActivity(intent);
+            }
+        });
+
+
         spec = tabHost.newTabSpec("tab2");
         spec.setIndicator(null, ResourcesCompat.getDrawable(getResources(), R.drawable.tab_icon2, null));
         spec.setContent(R.id.tab2);
         tabHost.addTab(spec);
+
 
         //향수 리스트 출력 구현(리사이클러뷰)
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView); // id 연결
@@ -90,11 +126,10 @@ public class MainActivity extends AppCompatActivity {
         //layoutManager 설정
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+        firebaseDatabase = FirebaseDatabase.getInstance();
 
-        //파이어베이스 데이터베이스 연결
-        database = FirebaseDatabase.getInstance(); //firebase DB와 연동
+        databaseReference = firebaseDatabase.getReference("향수"); // Firebase 의 DB 테이블과 연결
 
-        databaseReference = database.getReference("향수"); // Firebase 의 DB 테이블과 연결
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -107,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
                     copy_List.add(info);
 
                 }
-                adapter.notifyDataSetChanged(); //리스트 저장 및 새로고침
             }
 
             @Override
@@ -170,6 +204,33 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+
+
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        databaseReference2=database.getReference("Users");
+        firebaseAuth = FirebaseAuth.getInstance();
+        final FirebaseUser user = firebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        databaseReference2 = databaseReference2.child(uid);
+        int id = item.getItemId();
+        if (id == R.id.action_user) {
+            if (user != null) {
+                name = user.getDisplayName();
+                Toast.makeText(getApplicationContext(), name + " 님 반갑습니다! ", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 

@@ -3,27 +3,23 @@ package com.example.test;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,12 +31,14 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
    private Button submit_button;
    private Button cancel_button;
    private DatabaseReference databaseReference;
+   private FirebaseDatabase firebaseDatabase;
+   private DatabaseReference databaseReference2;
 
+   String path = ((MainActivity)MainActivity.context_main).path;
+   Boolean check_result=true;
    private String userId;
    private String review_text;
    private float review_stars;
-   int cnt=2;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +61,6 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void postFirebaseDatabase(boolean add){
-        String path = ((MainActivity)MainActivity.context_main).path;
         databaseReference = FirebaseDatabase.getInstance().getReference();
         Map<String,Object> childUpdates = new HashMap<>();
         Map<String,Object> postValues = null;
@@ -82,15 +79,42 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v)
     {
         if (v == submit_button) {
-            userId = "user" + cnt;
-            cnt++;
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            userId = user.getDisplayName();
             review_text = editText.getText().toString();
             review_stars=ratingBar.getRating();
+
+            //check();
             postFirebaseDatabase(true);
             finish();
+
         }
         else if (v == cancel_button) {
             finish();
         }
+    }
+
+    public void check(){
+        firebaseDatabase = FirebaseDatabase.getInstance(); //firebase DB와 연동
+        databaseReference2 = firebaseDatabase.getReference("/향수/"+path+"/review/"); // Firebase 의 DB 테이블과 연결
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //반복문으로 데이터의 list 추출
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    review info = snapshot.getValue(review.class); // 만들어둔 review 객체에 데이터를 담는다.
+                    if(info.getUserId().equals(userId)){
+                        Toast.makeText(getApplicationContext(),"이미 리뷰를 작성하셨습니다.", Toast.LENGTH_SHORT).show();
+                        check_result=false;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                //에러가 발생할 경우
+                Log.e("ShowReviewActivity", String.valueOf(databaseError.toException()));
+            }
+        });
     }
 }

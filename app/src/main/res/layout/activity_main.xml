@@ -28,7 +28,7 @@
                 android:layout_height="match_parent">
 
                 <LinearLayout
-                    android:id="@+id/tab1"
+                    android:id="@+id/tab2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
@@ -60,10 +60,34 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/tab2"
+                    android:id="@+id/tab1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/tab_content1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableTop="@drawable/perfume"
+                        android:drawablePadding="3dp"
+                        android:text="향수를 추천받으려면 위의 버튼을 클릭하세요"
+                        android:textColor="#F9CCCA"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toLeftOf="@+id/textView"
+                        android:layout_toStartOf="@+id/textView"
+                        android:background="#fafafa"
+                        android:layout_gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/tab_content2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Tab2"
+                        android:textSize="30dp"
+                        android:textStyle="bold"
+                        android:gravity="center" />
 
                 </LinearLayout>
 

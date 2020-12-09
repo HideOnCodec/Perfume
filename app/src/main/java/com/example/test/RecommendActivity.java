@@ -1,12 +1,15 @@
 package com.example.test;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 
 import com.example.test.R;
 import com.example.test.RecommendAdapter;
@@ -30,7 +33,7 @@ public class RecommendActivity extends AppCompatActivity {
     private RecommendAdapter recommendAdapter;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    //임의로 지정
+    private TextView textView;
 
     ArrayList<perfume> arrayList = new ArrayList<>();
     @Override
@@ -38,10 +41,9 @@ public class RecommendActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
 
-
         home_button = (Button)findViewById(R.id.homeButton);
         map_button = (Button)findViewById(R.id.mapButton);
-
+        textView = (TextView)findViewById(R.id.recommend_textView);
         //리사이클러뷰 설정
         recyclerView = (RecyclerView)findViewById(R.id.recycler_recommend);
         recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존 성능 강화
@@ -56,18 +58,24 @@ public class RecommendActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot)
             {
+
+                Intent intent = getIntent();
+                String perfume = intent.getStringExtra("perfume");
+                String s1 = intent.getStringExtra("s1");
+                String s2 = intent.getStringExtra("s2");
+
                 int cnt = 0;
                 arrayList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     perfume info = dataSnapshot.getValue(perfume.class);
-                    if(info.getType().equals("플로랄"))
+                    if(info.getType().equals(perfume))
                     {
                         String[] list = info.getScent().split(",");
                         for(int i=0; i<list.length; i++)
                         {
                             String test = list[i].trim();
-                            if(test.equals("장미"))
+                            if(test.equals(s1) || test.equals(s2))
                                 arrayList.add(info);
                         }
                     }

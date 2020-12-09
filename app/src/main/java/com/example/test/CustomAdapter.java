@@ -49,12 +49,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
         // arraylist에 firebase 데이터(향수 이미지)를 가져와서 adapter에 전송
-        /*
+
         Glide.with(holder.itemView)
                 .load(filteredList.get(position).getPhoto())
                 .into(holder.pf_profile);
 
-         */
         holder.pf_name.setText(filteredList.get(position).getName());
         holder.pf_estimating.setText("별점 "+String.valueOf(filteredList.get(position).getEstimating()));
         holder.pf_brand.setText(filteredList.get(position).getBrand());
@@ -67,7 +66,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
     }
 
     public class CustomViewHolder extends RecyclerView.ViewHolder {
-       // ImageView pf_profile;
+       ImageView pf_profile;
         TextView pf_brand;
         TextView pf_estimating;
         TextView pf_name;
@@ -89,7 +88,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
                 }
             });
 
-            //this.pf_profile = itemView.findViewById(R.id.pf_photo);
+            this.pf_profile = itemView.findViewById(R.id.pf_photo);
             this.pf_name = itemView.findViewById(R.id.pf_name);
             this.pf_brand = itemView.findViewById(R.id.pf_brand);
             this.pf_estimating = itemView.findViewById(R.id.pf_estimating);
