@@ -7,13 +7,16 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -31,17 +34,29 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -53,8 +68,9 @@ import noman.googleplaces.PlacesException;
 import noman.googleplaces.PlacesListener;
 
 
-public class GpsActivity extends AppCompatActivity  implements OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback, PlacesListener {
+public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback,
+        ActivityCompat.OnRequestPermissionsResultCallback, PlacesListener{
+
     List<Marker> previous_marker = null;
 
     private GoogleMap mMap;
@@ -75,7 +91,7 @@ public class GpsActivity extends AppCompatActivity  implements OnMapReadyCallbac
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};  // 외부 저장소
 
 
-    Location mCurrentLocatiion;
+    Location mCurrentLocation;
     LatLng currentPosition;
 
 
@@ -97,7 +113,7 @@ public class GpsActivity extends AppCompatActivity  implements OnMapReadyCallbac
         setContentView(R.layout.activity_gps);
         previous_marker = new ArrayList<Marker>();
 
-        Button button = (Button)findViewById(R.id.button);
+        Button button = (Button)findViewById(R.id.btnSearch);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -227,7 +243,7 @@ public class GpsActivity extends AppCompatActivity  implements OnMapReadyCallbac
                 //현재 위치에 마커 생성하고 이동
                 setCurrentLocation(location, markerTitle, markerSnippet);
 
-                mCurrentLocatiion = location;
+                mCurrentLocation = location;
             }
 
 
@@ -596,9 +612,11 @@ public class GpsActivity extends AppCompatActivity  implements OnMapReadyCallbac
                 .listener(GpsActivity.this)
                 .key("AIzaSyCMhXSlHIs6pzEIYgA_nIpOR04oGpjgAoc")
                 .latlng(location.latitude, location.longitude)//현재 위치
-                .radius(3000) //500 미터 내에서 검색
+                .radius(2000) //500 미터 내에서 검색
+                .type(PlaceType.RESTAURANT) //음식점
                 .build()
                 .execute();
     }
+
 }
 
