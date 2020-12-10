@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class Post {
     private String userId;
-    public float review_stars;
-    public String review_text;
+    private float review_stars;
+    private String review_text;
 
     public Post() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)

@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
     //현재 선택된 향수 저장
     public static Context context_main;
     public String current;
-    public String path;
 
     //home
     private Button buttonPerfume;
@@ -167,8 +166,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onItemClick(View v, int pos) {
                             current = copy_List.get(pos).getName();
-                            findPath();
-                            Intent intent = new Intent(getApplicationContext(),testActivity.class);
+                            Intent intent = new Intent(getApplicationContext(),ShowInfoActivity.class);
                             startActivity(intent);
                         }
 
@@ -185,8 +183,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onItemClick(View v, int pos) {
                             current = arrayList.get(pos).getName();
-                            findPath();
-                            Intent intent = new Intent(getApplicationContext(),testActivity.class);
+                            Intent intent = new Intent(getApplicationContext(),ShowInfoActivity.class);
                             startActivity(intent);
                         }
 
@@ -244,26 +241,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void findPath(){
-        database = FirebaseDatabase.getInstance(); //firebase DB와 연동
-        databaseReference = database.getReference("향수"); // Firebase 의 DB 테이블과 연결
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                //반복문으로 데이터의 list 추출
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    perfume info = snapshot.getValue(perfume.class); // 만들어둔 perfume 객체에 데이터를 담는다.
-                    if(info.getName().equals(current))
-                        path = snapshot.getKey();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                //에러가 발생할 경우
-                Log.e("MainActivity", String.valueOf(databaseError.toException()));
-            }
-        });
-    }
 
 }

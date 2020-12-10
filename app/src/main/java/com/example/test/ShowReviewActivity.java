@@ -36,7 +36,7 @@ public class ShowReviewActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_review);
 
-        String path = ((MainActivity)MainActivity.context_main).path;
+        String path = ((ShowInfoActivity)ShowInfoActivity.context).path;
 
         //향수 리스트 출력 구현
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView2); // id 연결

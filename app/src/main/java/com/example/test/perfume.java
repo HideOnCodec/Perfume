@@ -11,6 +11,18 @@ public class perfume  {
     private String type;
     private String scent;
 
+    public int getReview_count() {
+        return review_count;
+    }
+
+    public void setReview_count(int review_count) {
+        this.review_count = review_count;
+    }
+
+    private int review_count;
+
+
+
     public String getType() {
         return type;
     }

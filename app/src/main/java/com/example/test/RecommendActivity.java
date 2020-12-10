@@ -1,7 +1,10 @@
 package com.example.test;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -29,7 +32,7 @@ public class RecommendActivity extends AppCompatActivity {
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private Button home_button;
-    private Button map_button;
+    public Button map_button;
     private RecommendAdapter recommendAdapter;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -44,6 +47,21 @@ public class RecommendActivity extends AppCompatActivity {
         home_button = (Button)findViewById(R.id.homeButton);
         map_button = (Button)findViewById(R.id.mapButton);
         textView = (TextView)findViewById(R.id.recommend_textView);
+        //버튼 연결
+        home_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                startActivity(intent);
+            }
+        });
+        map_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(),GpsActivity.class);
+                startActivity(intent);
+            }
+        });
         //리사이클러뷰 설정
         recyclerView = (RecyclerView)findViewById(R.id.recycler_recommend);
         recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존 성능 강화

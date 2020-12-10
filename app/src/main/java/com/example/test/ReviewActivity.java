@@ -31,11 +31,10 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
    private Button submit_button;
    private Button cancel_button;
    private DatabaseReference databaseReference;
-   private FirebaseDatabase firebaseDatabase;
+   private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
    private DatabaseReference databaseReference2;
 
-   String path = ((MainActivity)MainActivity.context_main).path;
-   Boolean check_result=true;
+   String path = ((ShowInfoActivity)ShowInfoActivity.context).path;
    private String userId;
    private String review_text;
    private float review_stars;
@@ -83,9 +82,8 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
             userId = user.getDisplayName();
             review_text = editText.getText().toString();
             review_stars=ratingBar.getRating();
-
-            //check();
             postFirebaseDatabase(true);
+            count();
             finish();
 
         }
@@ -94,20 +92,21 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    public void check(){
+    public void count(){
+
         firebaseDatabase = FirebaseDatabase.getInstance(); //firebase DB와 연동
         databaseReference2 = firebaseDatabase.getReference("/향수/"+path+"/review/"); // Firebase 의 DB 테이블과 연결
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 //반복문으로 데이터의 list 추출
+                int review_count=0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     review info = snapshot.getValue(review.class); // 만들어둔 review 객체에 데이터를 담는다.
-                    if(info.getUserId().equals(userId)){
-                        Toast.makeText(getApplicationContext(),"이미 리뷰를 작성하셨습니다.", Toast.LENGTH_SHORT).show();
-                        check_result=false;
-                    }
+                    review_count++;
                 }
+                databaseReference2 = firebaseDatabase.getReference("/향수/"+path+"/"); // Firebase 의 DB 테이블과 연결
+                databaseReference2.child("review_count").setValue(review_count);
             }
 
             @Override
@@ -117,4 +116,5 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
+
 }
