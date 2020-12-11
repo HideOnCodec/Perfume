@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -22,7 +24,10 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -72,14 +77,20 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         ActivityCompat.OnRequestPermissionsResultCallback, PlacesListener{
 
     List<Marker> previous_marker = null;
-
+    ArrayList<String> array_List=new ArrayList<>();
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
+    private PlaceAdapter adapter;
     private GoogleMap mMap;
     private Marker currentMarker = null;
+
 
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
+
+
 
 
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
@@ -113,6 +124,14 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_gps);
         previous_marker = new ArrayList<Marker>();
 
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_gps);
+        recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존 성능
+        //layoutManager 설정
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+
+
         Button button = (Button)findViewById(R.id.btnSearch);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,6 +160,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
     }
 
     @Override
@@ -583,9 +603,23 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                     markerOptions.title(place.getName());
                     markerOptions.snippet(markerSnippet);
                     Marker item = mMap.addMarker(markerOptions);
+                    String result = place.getName();
+                    array_List.add(result);
                     previous_marker.add(item);
 
                 }
+
+
+                recyclerView = (RecyclerView)findViewById(R.id.recycler_gps);
+                recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존 성능
+                //layoutManager 설정
+                layoutManager = new LinearLayoutManager(getApplicationContext());
+                recyclerView.setLayoutManager(layoutManager);
+
+                adapter = new PlaceAdapter(array_List, getApplicationContext());
+                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+                recyclerView.setAdapter(adapter);
+
 
                 //중복 마커 제거
                 HashSet<Marker> hashSet = new HashSet<Marker>();
