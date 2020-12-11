@@ -612,7 +612,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                 .listener(GpsActivity.this)
                 .key("AIzaSyCMhXSlHIs6pzEIYgA_nIpOR04oGpjgAoc")
                 .latlng(location.latitude, location.longitude)//현재 위치
-                .radius(2000) //500 미터 내에서 검색
+                .radius(10000) //500 미터 내에서 검색
                 .type(PlaceType.RESTAURANT) //음식점
                 .build()
                 .execute();
