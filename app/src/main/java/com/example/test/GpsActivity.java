@@ -18,6 +18,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
@@ -26,6 +27,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,26 +79,25 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         ActivityCompat.OnRequestPermissionsResultCallback, PlacesListener{
 
     List<Marker> previous_marker = null;
-    ArrayList<String> array_List=new ArrayList<>();
+    ArrayList<placeList> array_List=new ArrayList<>();
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private PlaceAdapter adapter;
     private GoogleMap mMap;
     private Marker currentMarker = null;
-
+    private ImageButton call_button;
+    private ImageButton alarm_button;
+    private Button btnSearch;
+    public String phoneNumber = "010-3994-3356";
 
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
 
-
-
-
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     boolean needRequest = false;
-
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};  // 외부 저장소
@@ -123,22 +124,23 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
         setContentView(R.layout.activity_gps);
         previous_marker = new ArrayList<Marker>();
+        btnSearch=(Button)findViewById(R.id.btnSearch);
+        call_button = (ImageButton)findViewById(R.id.callButton);
+        alarm_button =(ImageButton)findViewById(R.id.alarmButton);
 
-        recyclerView = (RecyclerView)findViewById(R.id.recycler_gps);
-        recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존 성능
-        //layoutManager 설정
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-
-
-        Button button = (Button)findViewById(R.id.btnSearch);
-        button.setOnClickListener(new View.OnClickListener() {
+        btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showPlaceInformation(currentPosition);
             }
         });
+
+        //리사이클러 설정
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_gps);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
 
         mLayout = findViewById(R.id.layout_gps);
 
@@ -168,13 +170,9 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d(TAG, "onMapReady :");
 
         mMap = googleMap;
-
         //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
         //지도의 초기위치를 서울로 이동
         setDefaultLocation();
-
-
-
         //런타임 퍼미션 처리
         // 1. 위치 퍼미션을 가지고 있는지 체크합니다.
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
@@ -182,17 +180,13 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION);
 
-
-
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
                 hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
 
             // 2. 이미 퍼미션을 가지고 있다면
             // ( 안드로이드 6.0 이하 버전은 런타임 퍼미션이 필요없기 때문에 이미 허용된 걸로 인식합니다.)
 
-
             startLocationUpdates(); // 3. 위치 업데이트 시작
-
 
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
@@ -205,24 +199,18 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     @Override
                     public void onClick(View view) {
-
                         // 3-3. 사용자게에 퍼미션 요청을 합니다. 요청 결과는 onRequestPermissionResult에서 수신됩니다.
                         ActivityCompat.requestPermissions( GpsActivity.this, REQUIRED_PERMISSIONS,
                                 PERMISSIONS_REQUEST_CODE);
                     }
                 }).show();
-
-
             } else {
                 // 4-1. 사용자가 퍼미션 거부를 한 적이 없는 경우에는 퍼미션 요청을 바로 합니다.
                 // 요청 결과는 onRequestPermissionResult에서 수신됩니다.
                 ActivityCompat.requestPermissions( this, REQUIRED_PERMISSIONS,
                         PERMISSIONS_REQUEST_CODE);
             }
-
         }
-
-
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         // 현재 오동작을 해서 주석처리
@@ -258,25 +246,16 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                         + " 경도:" + String.valueOf(location.getLongitude());
 
                 Log.d(TAG, "onLocationResult : " + markerSnippet);
-
-
                 //현재 위치에 마커 생성하고 이동
                 setCurrentLocation(location, markerTitle, markerSnippet);
-
                 mCurrentLocation = location;
             }
-
-
         }
-
     };
-
-
 
     private void startLocationUpdates() {
 
         if (!checkLocationServicesStatus()) {
-
             Log.d(TAG, "startLocationUpdates : call showDialogForLocationServiceSetting");
             showDialogForLocationServiceSetting();
         }else {
@@ -286,8 +265,6 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
             int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION);
 
-
-
             if (hasFineLocationPermission != PackageManager.PERMISSION_GRANTED ||
                     hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED   ) {
 
@@ -295,18 +272,14 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                 return;
             }
 
-
             Log.d(TAG, "startLocationUpdates : call mFusedLocationClient.requestLocationUpdates");
 
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
             if (checkPermission())
                 mMap.setMyLocationEnabled(true);
-
         }
-
     }
-
 
     @Override
     protected void onStart() {
@@ -321,37 +294,24 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
             if (mMap!=null)
                 mMap.setMyLocationEnabled(true);
-
         }
-
-
     }
-
 
     @Override
     protected void onStop() {
-
         super.onStop();
-
         if (mFusedLocationClient != null) {
-
             Log.d(TAG, "onStop : call stopLocationUpdates");
             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
 
-
-
-
     public String getCurrentAddress(LatLng latlng) {
 
         //지오코더... GPS를 주소로 변환
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-
         List<Address> addresses;
-
         try {
-
             addresses = geocoder.getFromLocation(
                     latlng.latitude,
                     latlng.longitude,
@@ -363,9 +323,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         } catch (IllegalArgumentException illegalArgumentException) {
             Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
             return "잘못된 GPS 좌표";
-
         }
-
 
         if (addresses == null || addresses.size() == 0) {
             Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
@@ -375,7 +333,6 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
             Address address = addresses.get(0);
             return address.getAddressLine(0).toString();
         }
-
     }
 
 
@@ -386,13 +343,9 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
-
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
 
-
         if (currentMarker != null) currentMarker.remove();
-
-
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         MarkerOptions markerOptions = new MarkerOptions();
@@ -406,18 +359,14 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
         mMap.moveCamera(cameraUpdate);
-
     }
 
 
     public void setDefaultLocation() {
-
-
         //디폴트 위치, Seoul
         LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
         String markerTitle = "위치정보 가져올 수 없음";
         String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
-
 
         if (currentMarker != null) currentMarker.remove();
 
@@ -431,7 +380,6 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
         mMap.moveCamera(cameraUpdate);
-
     }
 
 
@@ -443,18 +391,12 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION);
 
-
-
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
                 hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
             return true;
         }
-
         return false;
-
     }
-
-
 
     /*
      * ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
@@ -470,7 +412,6 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
             boolean check_result = true;
 
-
             // 모든 퍼미션을 허용했는지 체크합니다.
 
             for (int result : grandResults) {
@@ -479,7 +420,6 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                     break;
                 }
             }
-
 
             if ( check_result ) {
 
@@ -603,8 +543,11 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                     markerOptions.title(place.getName());
                     markerOptions.snippet(markerSnippet);
                     Marker item = mMap.addMarker(markerOptions);
-                    String result = place.getName();
-                    array_List.add(result);
+
+                    placeList placeList = new placeList();
+                    placeList.setPlace_name(place.getName());
+                    placeList.setPlace_address(markerSnippet);
+                    array_List.add(placeList);
                     previous_marker.add(item);
 
                 }

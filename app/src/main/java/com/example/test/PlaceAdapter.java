@@ -4,24 +4,17 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
 
 public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHolder>{
 
-    private ArrayList<String> arrayList;
+    private ArrayList<placeList> arrayList;
     private Context context;
-
-    public PlaceAdapter(ArrayList<String> arrayList, Context context) {
+    public PlaceAdapter(ArrayList<placeList> arrayList, Context context) {
         this.arrayList = arrayList;
         this.context=context;
     }
@@ -36,32 +29,23 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PlaceViewHolder holder, int position) {
-        // arraylist에 firebase 데이터(향수 이미지)를 가져와서 adapter에 전송
-
-        holder.place_name.setText(arrayList.get(position));
-
+        holder.place_name.setText(arrayList.get(position).getPlace_name());
+        holder.place_address.setText(arrayList.get(position).getPlace_address());
     }
 
     @Override
-    public int getItemCount() {
-        // 삼항 연산자
-        return (arrayList != null ? arrayList.size() : 0);
-    }
+    public int getItemCount() { return (arrayList != null ? arrayList.size() : 0); }
 
     public class PlaceViewHolder extends RecyclerView.ViewHolder {
         TextView place_name;
+        TextView place_address;
 
         public PlaceViewHolder(@NonNull View itemView) {
             super(itemView); // itemView 상속
-            //상속 받은 itemView 를 통해 객체를 얻음
-
             this.place_name = itemView.findViewById(R.id.place_name);
-
+            this.place_address=itemView.findViewById(R.id.place_address);
         }
-
     }
-
-
 }
 
 
