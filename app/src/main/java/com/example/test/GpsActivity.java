@@ -1,5 +1,4 @@
 package com.example.test;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -51,9 +50,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.maps.android.SphericalUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -61,12 +66,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import noman.googleplaces.NRPlaces;
 import noman.googleplaces.Place;
@@ -78,6 +88,7 @@ import noman.googleplaces.PlacesListener;
 public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback, PlacesListener{
 
+
     List<Marker> previous_marker = null;
     ArrayList<placeList> array_List=new ArrayList<>();
     private RecyclerView recyclerView;
@@ -85,10 +96,9 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
     private PlaceAdapter adapter;
     private GoogleMap mMap;
     private Marker currentMarker = null;
-    private ImageButton call_button;
-    private ImageButton alarm_button;
     private Button btnSearch;
-    public String phoneNumber = "010-3994-3356";
+    private Button prevButton;
+    public static Context gps_context;
 
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -101,7 +111,6 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};  // 외부 저장소
-
 
     Location mCurrentLocation;
     LatLng currentPosition;
@@ -118,16 +127,20 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        gps_context=this;
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_gps);
         previous_marker = new ArrayList<Marker>();
         btnSearch=(Button)findViewById(R.id.btnSearch);
-        call_button = (ImageButton)findViewById(R.id.callButton);
-        alarm_button =(ImageButton)findViewById(R.id.alarmButton);
-
+        prevButton=(Button)findViewById(R.id.prevButton);
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,12 +248,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
             if (locationList.size() > 0) {
                 location = locationList.get(locationList.size() - 1);
-                //location = locationList.get(0);
-
-                currentPosition
-                        = new LatLng(location.getLatitude(), location.getLongitude());
-
-
+                currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
                 String markerTitle = getCurrentAddress(currentPosition);
                 String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                         + " 경도:" + String.valueOf(location.getLongitude());
@@ -249,6 +257,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                 //현재 위치에 마커 생성하고 이동
                 setCurrentLocation(location, markerTitle, markerSnippet);
                 mCurrentLocation = location;
+
             }
         }
     };
@@ -326,7 +335,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         if (addresses == null || addresses.size() == 0) {
-            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+           // Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
             return "주소 미발견";
 
         } else {
@@ -503,10 +512,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                     if (checkLocationServicesStatus()) {
 
                         Log.d(TAG, "onActivityResult : GPS 활성화 되있음");
-
-
                         needRequest = true;
-
                         return;
                     }
                 }
@@ -527,6 +533,7 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onPlacesSuccess(final List<Place> places) {
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -543,13 +550,14 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                     markerOptions.title(place.getName());
                     markerOptions.snippet(markerSnippet);
                     Marker item = mMap.addMarker(markerOptions);
-
                     placeList placeList = new placeList();
                     placeList.setPlace_name(place.getName());
                     placeList.setPlace_address(markerSnippet);
+                    placeList.setLattitude(place.getLatitude());
+                    placeList.setLongtitude(place.getLongitude());
+
                     array_List.add(placeList);
                     previous_marker.add(item);
-
                 }
 
 
@@ -562,7 +570,6 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                 adapter = new PlaceAdapter(array_List, getApplicationContext());
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                 recyclerView.setAdapter(adapter);
-
 
                 //중복 마커 제거
                 HashSet<Marker> hashSet = new HashSet<Marker>();
@@ -589,11 +596,44 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                 .listener(GpsActivity.this)
                 .key("AIzaSyCMhXSlHIs6pzEIYgA_nIpOR04oGpjgAoc")
                 .latlng(location.latitude, location.longitude)//현재 위치
-                .radius(10000) //500 미터 내에서 검색
-                .type(PlaceType.RESTAURANT) //음식점
+                .radius(1000)
+                .type(PlaceType.RESTAURANT) //백화점
                 .build()
                 .execute();
     }
 
+/*
+    public List<placeList> getXmlList() throws ParserConfigurationException, IOException, SAXException {
+        List<placeList> testList = (List<placeList>) new placeList();
+        String strUrl = "https://maps.googleapis.com/maps/api/place/details/xml?place_id=ChIJN1t_tDeuEmsRUsoyG83frY4&fields=name,rating,formatted_phone_number&key=AIzaSyCMhXSlHIs6pzEIYgA_nIpOR04oGpjgAoc";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(strUrl);
+        Element rootElement = document.getDocumentElement();
+        NodeList nodelist = rootElement.getElementsByTagName("testlist");
+
+        Node current = null;
+
+        for (int i = 0; i < nodelist.getLength(); i++) {
+            placeList gm = new placeList();
+            current = nodelist.item(i);
+            NodeList ChildNodes = current.getChildNodes();
+
+            for (int k = 0; k < ChildNodes.getLength(); k++) {
+                Node info = ChildNodes.item(k);
+                if (info.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) info;
+                    if (element.getTagName() == "formatted_phone_number") {
+                        gm.setPlace_number(element.getTextContent());
+                    }
+                    if(element.getTagName()=="name"){
+                        gm.setPlace_name(element.getTextContent());
+                    }
+                }
+            }
+            testList.add(gm);
+        }
+        return testList;
+    }*/
 }
 

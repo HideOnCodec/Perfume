@@ -8,6 +8,12 @@
     android:orientation="vertical"
     tools:context=".GpsActivity">
 
+    <Button
+        android:id="@+id/prevButton"
+        android:layout_width="66dp"
+        android:layout_height="38dp"
+        android:text="prev"
+        android:textSize="10dp" />
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
