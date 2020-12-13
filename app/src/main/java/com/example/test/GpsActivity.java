@@ -596,44 +596,11 @@ public class GpsActivity extends AppCompatActivity implements OnMapReadyCallback
                 .listener(GpsActivity.this)
                 .key("AIzaSyCMhXSlHIs6pzEIYgA_nIpOR04oGpjgAoc")
                 .latlng(location.latitude, location.longitude)//현재 위치
-                .radius(1000)
-                .type(PlaceType.RESTAURANT) //백화점
+                .radius(5000)
+                .type(PlaceType.SHOPPING_MALL) //백화점
                 .build()
                 .execute();
     }
 
-/*
-    public List<placeList> getXmlList() throws ParserConfigurationException, IOException, SAXException {
-        List<placeList> testList = (List<placeList>) new placeList();
-        String strUrl = "https://maps.googleapis.com/maps/api/place/details/xml?place_id=ChIJN1t_tDeuEmsRUsoyG83frY4&fields=name,rating,formatted_phone_number&key=AIzaSyCMhXSlHIs6pzEIYgA_nIpOR04oGpjgAoc";
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(strUrl);
-        Element rootElement = document.getDocumentElement();
-        NodeList nodelist = rootElement.getElementsByTagName("testlist");
-
-        Node current = null;
-
-        for (int i = 0; i < nodelist.getLength(); i++) {
-            placeList gm = new placeList();
-            current = nodelist.item(i);
-            NodeList ChildNodes = current.getChildNodes();
-
-            for (int k = 0; k < ChildNodes.getLength(); k++) {
-                Node info = ChildNodes.item(k);
-                if (info.getNodeType() == Node.ELEMENT_NODE) {
-                    Element element = (Element) info;
-                    if (element.getTagName() == "formatted_phone_number") {
-                        gm.setPlace_number(element.getTextContent());
-                    }
-                    if(element.getTagName()=="name"){
-                        gm.setPlace_name(element.getTextContent());
-                    }
-                }
-            }
-            testList.add(gm);
-        }
-        return testList;
-    }*/
 }
 

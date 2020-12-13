@@ -27,6 +27,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
    private ArrayList<perfume> unFilteredList; // 정렬이 안된 향수 리스트
    private Context context;
 
+   ArrayList<perfume> resultList;
     public CustomAdapter(ArrayList<perfume> arrayList, Context context) {
         this.unFilteredList = arrayList;
         this.filteredList=arrayList;
@@ -113,6 +114,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
                         }
                     }
                     filteredList = filteringList; //이름순으로 정렬한 리스트를 넣음
+                    resultList=filteringList;
                 }
                 FilterResults filterResults = new FilterResults();
                 filterResults.values = filteredList;
@@ -126,9 +128,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
             }
         };
     }
-
-
-
+    
 }
 
 

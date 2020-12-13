@@ -63,31 +63,34 @@
                     android:id="@+id/tab1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
+                    <Button
+                        android:id="@+id/alarmButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="향수 알람 설정"/>
+                    <Button
+                        android:id="@+id/stopButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="향수 알람 종료"/>
+
                     <Button
                         android:id="@+id/tab_content1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawableTop="@drawable/perfume"
-                        android:drawablePadding="3dp"
                         android:text="향수를 추천받으려면 위의 버튼을 클릭하세요"
                         android:textColor="#F9CCCA"
                         android:textSize="20dp"
                         android:textStyle="bold"
+                        android:layout_marginTop="30dp"
                         android:layout_alignParentBottom="true"
                         android:layout_toLeftOf="@+id/textView"
                         android:layout_toStartOf="@+id/textView"
-                        android:background="#fafafa"
-                        android:layout_gravity="center"/>
+                        android:layout_gravity="center"
+                        android:background="#fafafa" />
 
-                    <TextView
-                        android:id="@+id/tab_content2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Tab2"
-                        android:textSize="30dp"
-                        android:textStyle="bold"
-                        android:gravity="center" />
 
                 </LinearLayout>
 

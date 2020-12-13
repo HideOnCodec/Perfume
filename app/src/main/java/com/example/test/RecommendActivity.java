@@ -26,6 +26,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 public class RecommendActivity extends AppCompatActivity {
 
@@ -82,22 +84,25 @@ public class RecommendActivity extends AppCompatActivity {
                 String s1 = intent.getStringExtra("s1");
                 String s2 = intent.getStringExtra("s2");
 
-                int cnt = 0;
                 arrayList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     perfume info = dataSnapshot.getValue(perfume.class);
                     if(info.getType().equals(perfume))
                     {
+                        int cnt=0;
                         String[] list = info.getScent().split(",");
                         for(int i=0; i<list.length; i++)
                         {
                             String test = list[i].trim();
-                            if(test.equals(s1) || test.equals(s2))
-                                arrayList.add(info);
+                            if(test.equals(s1)||test.equals(s2))
+                                cnt++;
                         }
+                        if(cnt!=0)
+                            arrayList.add(info);
                     }
                 }
+
                 Collections.sort(arrayList,new Descending()); //별점 순위 대로 출력
                 recommendAdapter.notifyDataSetChanged(); // 리스트 저장 및 새로고침
 

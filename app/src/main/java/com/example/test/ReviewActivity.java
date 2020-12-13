@@ -101,12 +101,15 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 //반복문으로 데이터의 list 추출
                 int review_count=0;
+                double total_star=0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     review info = snapshot.getValue(review.class); // 만들어둔 review 객체에 데이터를 담는다.
                     review_count++;
+                    total_star+=info.getReview_stars();
                 }
                 databaseReference2 = firebaseDatabase.getReference("/향수/"+path+"/"); // Firebase 의 DB 테이블과 연결
                 databaseReference2.child("review_count").setValue(review_count);
+                databaseReference2.child("estimating").setValue(total_star/review_count);
             }
 
             @Override
@@ -115,6 +118,7 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
                 Log.e("ShowReviewActivity", String.valueOf(databaseError.toException()));
             }
         });
+
     }
 
 }

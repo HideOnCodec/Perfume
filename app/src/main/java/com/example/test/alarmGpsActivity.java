@@ -174,9 +174,6 @@ public class alarmGpsActivity extends AppCompatActivity  implements OnMapReadyCa
 
 
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            // 현재 오동작을 해서 주석처리
-
-            //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
                 @Override
@@ -204,16 +201,8 @@ public class alarmGpsActivity extends AppCompatActivity  implements OnMapReadyCa
                     if (previousPosition == null) previousPosition = currentPosition;
 
                     if (tracking == 1 ) {
-                        double radius = 1000; // 500m distance.
+                        double radius = 100; // 500m distance.
                         LatLng destination = new LatLng(latitude1,longtitude1);
-                        /*
-                        String markerSnippet = getCurrentAddress(destination);
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(destination);
-                        markerOptions.title("목적지");
-                        markerOptions.snippet(markerSnippet);
-                        mMap.addMarker(markerOptions);
-                        */
 
                         double distance = SphericalUtil.computeDistanceBetween(currentPosition,destination);
 

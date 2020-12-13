@@ -10,6 +10,7 @@ public class perfume  {
     private String photo;
     private String type;
     private String scent;
+    private int review_count;
 
     public int getReview_count() {
         return review_count;
@@ -18,10 +19,6 @@ public class perfume  {
     public void setReview_count(int review_count) {
         this.review_count = review_count;
     }
-
-    private int review_count;
-
-
 
     public String getType() {
         return type;

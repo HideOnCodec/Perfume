@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,8 +35,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +50,11 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private SearchView searchView;
     private Spinner spinner;
-
+    //알람
+    private Button alarmButton;
+    private Button stopButton;
+    private AlarmManager alarm_manager;
+    private PendingIntent pendingIntent;
     private ArrayList<perfume> arrayList = new ArrayList<>();
     private ArrayList<perfume> copy_List = new ArrayList<>();
     //현재 선택된 향수 저장
@@ -86,17 +94,54 @@ public class MainActivity extends AppCompatActivity {
         });
         firebaseAuth = FirebaseAuth.getInstance();
 
-        buttonPerfume = (Button) findViewById(R.id.tab_content1);
-        buttonPerfume.setOnClickListener(new View.OnClickListener() {
+        /*알람 백그라운드 서비스 구현
+        alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        // Calendar 객체 생성
+        final Calendar calendar = Calendar.getInstance();
+        // 알람서비스 intent 생성
+        final Intent intent = new Intent(getApplicationContext(), alarmService.class);
+
+        alarmButton = (Button)findViewById(R.id.alarmButton);
+        alarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // activity_sign 연결
-                Intent intent = new Intent(MainActivity.this, asking.class);
-                startActivity(intent);
+                //현재시간 가져오기
+                long now = System.currentTimeMillis();
+                Date date = new Date(now);
+                // calendar에 시간 셋팅
+                calendar.setTime(date);
+                calendar.add(Calendar.SECOND,10);
+
+                // reveiver에 string 값 넘겨주기
+                intent.putExtra("state","alarm on");
+
+                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+                // 알람셋팅
+                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                        pendingIntent);
+
             }
         });
 
+        // 알람 정지 버튼
+        Button alarm_off = findViewById(R.id.stopButton);
+        alarm_off.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
+                // 알람매니저 취소
+                alarm_manager.cancel(pendingIntent);
 
+                intent.putExtra("state","alarm off");
+
+                // 알람취소
+                sendBroadcast(intent);
+            }
+        });
+
+*/
         spec = tabHost.newTabSpec("tab2");
         spec.setIndicator(null, ResourcesCompat.getDrawable(getResources(), R.drawable.tab_icon2, null));
         spec.setContent(R.id.tab2);
@@ -106,21 +151,7 @@ public class MainActivity extends AppCompatActivity {
         //향수 리스트 출력 구현(리사이클러뷰)
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView); // id 연결
         recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존 성능 강화
-        searchView = (SearchView)findViewById(R.id.search_view) ;
-        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.getFilter().filter(newText);
-                return false;
-            }
-        });
 
         //layoutManager 설정
         layoutManager = new LinearLayoutManager(this);
@@ -139,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
                     perfume info = snapshot.getValue(perfume.class); // 만들어둔 perfume 객체에 데이터를 담는다.
                     arrayList.add(info); // 담은 데이터를 배열리스트에 넣고, 리사이클러뷰로 보낼 준비
                     copy_List.add(info);
-
                 }
+
             }
 
             @Override
@@ -150,6 +181,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        searchView = (SearchView)findViewById(R.id.search_view) ;
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
 
         //드롭다운 버튼 구현
         spinner = (Spinner) findViewById(R.id.spinner);
@@ -159,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 String text = spinner.getSelectedItem().toString();
                 if (text.equals("별점순")) //별점순 출력
                 {
+
                     Collections.sort(copy_List, new Descending());
                     adapter = new CustomAdapter(copy_List, getApplicationContext());
                     //현재 선택된 향수 저장
@@ -177,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(text.equals("이름순"))//이름순 출력
                 {
+
                     adapter = new CustomAdapter(arrayList, getApplicationContext());
                     //현재 선택된 향수 저장
                     adapter.setOnItemClickListener(new CustomAdapter.OnItemClickListener() {

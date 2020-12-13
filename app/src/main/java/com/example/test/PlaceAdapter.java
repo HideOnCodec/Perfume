@@ -63,15 +63,18 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
         holder.alarm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
+
                final Intent intent = new Intent(v.getContext(),alarmGpsActivity.class);
                intent.putExtra("latitude",latitude);
                intent.putExtra("longtitude",longtitude);
                intent.putExtra("tracking",1);
+
                 new AlertDialog.Builder(v.getContext()) // TestActivity 부분에는 현재 Activity의 이름 입력.
                         .setMessage("도착 알람을 설정하시겠습니까?")     // 제목 부분 (직접 작성)
                         .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which){
-                                v.getContext().startActivity(intent);
+                               v.getContext().startActivity(intent);
+
                             }
                         })
                         .setNegativeButton("취소", new DialogInterface.OnClickListener() {

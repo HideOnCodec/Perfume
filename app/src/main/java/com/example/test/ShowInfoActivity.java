@@ -29,10 +29,13 @@ public class ShowInfoActivity extends AppCompatActivity {
     private TextView brandText;
     private TextView typeText;
     private TextView scentText;
+    private TextView sum_star;
+    private TextView count;
     private ImageView photoImage;
     private Button showAllButton;
     private Button writeReviewButton;
     private Button prevButton;
+    private RatingBar sum_ratingBar;
 
     private RatingBar ratingBar;
     private TextView username;
@@ -45,6 +48,7 @@ public class ShowInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_info);
 
+
         context =this;
         photoImage = (ImageView)findViewById(R.id.iv_photo);
         nameText = (TextView)findViewById(R.id.tv_name);
@@ -54,9 +58,12 @@ public class ShowInfoActivity extends AppCompatActivity {
         showAllButton = (Button)findViewById(R.id.showAllButton);
         writeReviewButton = (Button)findViewById(R.id.writeReviewButton);
         prevButton = (Button)findViewById(R.id.prevButton2);
+        sum_star = (TextView)findViewById(R.id.sum_star);
+        count = (TextView)findViewById(R.id.count);
 
         database = FirebaseDatabase.getInstance(); // 파이어베이스 데이터베이스 연동
 
+        sum_ratingBar = (RatingBar)findViewById(R.id.sum_ratingbar);
         ratingBar = (RatingBar)findViewById(R.id.user1_ratingbar);
         username = (TextView)findViewById(R.id.user);
         user_review=(TextView)findViewById(R.id.user_review);
@@ -77,6 +84,10 @@ public class ShowInfoActivity extends AppCompatActivity {
                             brandText.setText(info.getBrand());
                             typeText.setText(info.getType());
                             scentText.setText(info.getScent());
+                           count.setText(String.valueOf(info.getReview_count()));
+                           sum_star.setText(Float.toString(info.getEstimating()));
+                           sum_ratingBar.setRating(info.getEstimating());
+
                         }
 
                     }
@@ -106,13 +117,13 @@ public class ShowInfoActivity extends AppCompatActivity {
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
 
     }
     public void findReview(){
+
         database = FirebaseDatabase.getInstance(); //firebase DB와 연동
         databaseReference = database.getReference("향수"); // Firebase 의 DB 테이블과 연결
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -122,6 +133,7 @@ public class ShowInfoActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     perfume info = snapshot.getValue(perfume.class); // 만들어둔 perfume 객체에 데이터를 담는다.
                     if(info.getName().equals(name)) {
+
                         path = snapshot.getKey();
                         databaseReference = database.getReference("/향수/"+path+"/review/"); // DB 테이블 연결
 
@@ -129,6 +141,7 @@ public class ShowInfoActivity extends AppCompatActivity {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 // 파이어베이스 데이터베이스의 데이터를 받아오는 곳
+                                int cnt;
                                 for (DataSnapshot snapshot : dataSnapshot.getChildren())
                                 { // 반복문으로 데이터 List를 추출해냄
                                     review review = snapshot.getValue(review.class); // 만들어둔 perfume 객체에 데이터를 담는다.
