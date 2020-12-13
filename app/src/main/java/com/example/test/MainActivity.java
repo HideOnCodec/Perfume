@@ -11,6 +11,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -50,11 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private SearchView searchView;
     private Spinner spinner;
-    //알람
-    private Button alarmButton;
-    private Button stopButton;
-    private AlarmManager alarm_manager;
-    private PendingIntent pendingIntent;
+
+
     private ArrayList<perfume> arrayList = new ArrayList<>();
     private ArrayList<perfume> copy_List = new ArrayList<>();
     //현재 선택된 향수 저장
@@ -94,54 +93,7 @@ public class MainActivity extends AppCompatActivity {
         });
         firebaseAuth = FirebaseAuth.getInstance();
 
-        /*알람 백그라운드 서비스 구현
-        alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        // Calendar 객체 생성
-        final Calendar calendar = Calendar.getInstance();
-        // 알람서비스 intent 생성
-        final Intent intent = new Intent(getApplicationContext(), alarmService.class);
 
-        alarmButton = (Button)findViewById(R.id.alarmButton);
-        alarmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //현재시간 가져오기
-                long now = System.currentTimeMillis();
-                Date date = new Date(now);
-                // calendar에 시간 셋팅
-                calendar.setTime(date);
-                calendar.add(Calendar.SECOND,10);
-
-                // reveiver에 string 값 넘겨주기
-                intent.putExtra("state","alarm on");
-
-                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-                // 알람셋팅
-                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        pendingIntent);
-
-            }
-        });
-
-        // 알람 정지 버튼
-        Button alarm_off = findViewById(R.id.stopButton);
-        alarm_off.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
-                // 알람매니저 취소
-                alarm_manager.cancel(pendingIntent);
-
-                intent.putExtra("state","alarm off");
-
-                // 알람취소
-                sendBroadcast(intent);
-            }
-        });
-
-*/
         spec = tabHost.newTabSpec("tab2");
         spec.setIndicator(null, ResourcesCompat.getDrawable(getResources(), R.drawable.tab_icon2, null));
         spec.setContent(R.id.tab2);
@@ -259,8 +211,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
-
 
     }
 
