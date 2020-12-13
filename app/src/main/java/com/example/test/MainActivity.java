@@ -184,19 +184,6 @@ public class MainActivity extends AppCompatActivity {
         searchView = (SearchView)findViewById(R.id.search_view) ;
         searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.getFilter().filter(newText);
-                return false;
-            }
-        });
-
         //드롭다운 버튼 구현
         spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -209,6 +196,18 @@ public class MainActivity extends AppCompatActivity {
                     Collections.sort(copy_List, new Descending());
                     adapter = new CustomAdapter(copy_List, getApplicationContext());
                     //현재 선택된 향수 저장
+                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
+                            adapter.getFilter().filter(newText);
+                            return false;
+                        }
+                    });
                     adapter.setOnItemClickListener(new CustomAdapter.OnItemClickListener() {
                         @Override
                         public void onItemClick(View v, int pos) {
@@ -227,6 +226,18 @@ public class MainActivity extends AppCompatActivity {
 
                     adapter = new CustomAdapter(arrayList, getApplicationContext());
                     //현재 선택된 향수 저장
+                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
+                            adapter.getFilter().filter(newText);
+                            return false;
+                        }
+                    });
                     adapter.setOnItemClickListener(new CustomAdapter.OnItemClickListener() {
                         @Override
                         public void onItemClick(View v, int pos) {

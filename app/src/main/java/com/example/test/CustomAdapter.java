@@ -79,7 +79,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int pos = getAdapterPosition();
+                    int pos = unFilteredList.indexOf(filteredList.get(getAdapterPosition()));
+
                     if(pos!=RecyclerView.NO_POSITION){
                         if(mListener!=null){
                             mListener.onItemClick(v,pos);
@@ -128,7 +129,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
             }
         };
     }
-    
+
 }
 
 
